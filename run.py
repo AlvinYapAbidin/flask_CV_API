@@ -5,6 +5,8 @@ import numpy as np
 from PIL import Image
 import os
 from segment_anything import SamPredictor, sam_model_registry
+from fastsam import FastSAM, FastSAMPrompt
+import pkg_resources
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
@@ -35,7 +37,7 @@ def process_image():
     y = int(request.form.get('y', 0))
 
     try:
-        mask_path = create_mask(image_path, x, y, image_file.filename)
+        mask_path = create_mask_FastSAM(image_path, x, y, image_file.filename)
     except Exception as e:
         return jsonify(result=-1, message=str(e)), 500
 
@@ -44,7 +46,36 @@ def process_image():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
-def create_mask(image_path, x, y, filename):
+def create_mask_FastSAM(image_path, x, y, filename):
+    try:
+        model = FastSAM('FastSAM.pt')
+        IMAGE_PATH = image_path
+        DEVICE = 'cpu'
+        everything_results = model(IMAGE_PATH, device=DEVICE, retina_masks=True, imgsz=1024, conf=0.4, iou=0.9,)
+        prompt_process = FastSAMPrompt(IMAGE_PATH, everything_results, device=DEVICE)
+
+        ann = prompt_process.point_prompt(points=[[x, y]], pointlabel=[1])
+
+        # Assume ann is a valid mask array
+        if not isinstance(ann, np.ndarray):
+            raise ValueError("Expected ann to be a numpy array")
+        
+        if ann.ndim == 3 and ann.shape[0] == 1:
+            # If it is 3D and the first dimension is 1, squeeze it to 2D
+            ann = np.squeeze(ann, axis=0)
+        
+        mask = ann
+        mask_image = Image.fromarray((mask * 255).astype(np.uint8))
+
+        mask_path = os.path.join(app.config['MASK_FOLDER'], f"mask_{filename}")
+        # prompt_process.plot(annotations=ann, output_path=mask_path)
+        mask_image.save(mask_path)
+
+        return  mask_path
+    except Exception as e:
+        raise Exception(f"Failed to process image:{str(e)}")
+
+def create_mask_SAM(image_path, x, y, filename):
     try:
         sam_checkpoint = "sam_vit_h_4b8939.pth"
         model_type = "vit_h"
@@ -55,7 +86,7 @@ def create_mask(image_path, x, y, filename):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         predictor.set_image(image)
 
-        input_point = np.array([[x, y]])
+        input_point = np.array([[x, y]]) # Truck example (500,375)
         input_label = np.array([1]) 
 
         # Prediction
@@ -73,21 +104,6 @@ def create_mask(image_path, x, y, filename):
         mask_image = Image.fromarray((best_mask * 255).astype(np.uint8))
         mask_path = os.path.join(app.config['MASK_FOLDER'], f"mask_{filename}")
         mask_image.save(mask_path)
-
-        # image = Image.open(image_path)
-        # image_np = np.array(image)
-
-        # height, width = image_np.shape[:2]
-        # mask = np.zeros((height, width), dtype=np.uint8)
-        # x = int(request.form.get('x', 0))
-        # y = int(request.form.get('y',0))
-        # cv2.rectangle(mask,(x,y), (x+100, y+100), (255), thickness=-1)
-        # mask_image = Image.fromarray(mask)
-
-        # # save mask
-
-        # mask_path = os.path.join(app.config['MASK_FOLDER'], f"mask_{filename}")
-        # mask_image.save(mask_path)
 
         return mask_path
     except Exception as e:
