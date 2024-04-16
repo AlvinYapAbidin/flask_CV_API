@@ -8,7 +8,7 @@ Prerequisites
 
 Ensure you have Python installed on your machine, along with Flask and other required libraries:
 
-    pip install flask numpy opencv-python-headless pillow
+    pip install flask numpy opencv-python-headless pillow segment_anything
 
 ## Installation
 
