@@ -38,8 +38,9 @@ To start the server, run:
 
 python app.py
 
-This will start the Flask server on http://localhost:5000. You can make POST requests to /segment to process your images using Postman.
-Using the API
+This will start the Flask server on http://localhost:5000. You can make POST requests to /segment to process your images using **Postman** (https://www.postman.com/). VSCode has an extension for Postman as well
+
+## Using the API
 
 To use the API:
 
