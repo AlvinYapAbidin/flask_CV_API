@@ -4,7 +4,8 @@ This repository contains a simple Flask API designed for image segmentation util
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-Prerequisites
+
+## Prerequisites
 
 Ensure you have Python installed on your machine, along with Flask and other required libraries:
 
