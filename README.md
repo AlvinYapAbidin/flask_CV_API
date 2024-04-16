@@ -15,7 +15,7 @@ Ensure you have Python installed on your machine, along with Flask and other req
 
 ### Clone the repository:
 
-    git clone https://github.com/yourusername/flask_CV_API.git
+    git clone https://github.com/AlvinYapAbidin/flask_CV_API.git
     cd flask_CV_API
 
 ### Download the Model Weights:
