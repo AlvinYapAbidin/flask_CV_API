@@ -31,7 +31,6 @@ def process_image():
     image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_file.filename)
     image_file.save(image_path)
     
-    # Get x and y coordinates
     x = int(request.form.get('x', 0))
     y = int(request.form.get('y', 0))
 
@@ -47,29 +46,26 @@ def allowed_file(filename):
 
 def create_mask(image_path, x, y, filename):
     try:
-        # Load the SAM model
         sam_checkpoint = "sam_vit_h_4b8939.pth"
         model_type = "vit_h"
         sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
         predictor = SamPredictor(sam)
         
-        # Load image and prepare for prediction
         image = cv2.imread(image_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         predictor.set_image(image)
 
-        # Define the input point and label
         input_point = np.array([[x, y]])
         input_label = np.array([1]) 
 
-        # Predict masks
+        # Prediction
         masks, scores, logits = predictor.predict(
             point_coords=input_point,
             point_labels=input_label,
             multimask_output=True
         )
 
-        # High scoring mask
+        # Highest scoring mask
         best_mask_index = np.argmax(scores)
         best_mask = masks[best_mask_index]
 
