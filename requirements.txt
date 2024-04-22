@@ -3,6 +3,7 @@ numpy==1.26.4
 Pillow==10.3.0
 opencv-python==4.9.0.80
 segment_anything==1.0
+torch==2.2.2
 
 # fastsam @ file://fastsam - update path to fastsam folder
 
