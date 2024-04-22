@@ -4,17 +4,18 @@ This repository contains a simple Flask API designed for image segmentation util
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-Prerequisites
+
+## Prerequisites
 
 Ensure you have Python installed on your machine, along with Flask and other required libraries:
 
-    pip install flask numpy opencv-python-headless pillow
+    pip install flask numpy opencv-python-headless pillow segment_anything
 
 ## Installation
 
 ### Clone the repository:
 
-    git clone https://github.com/yourusername/flask_CV_API.git
+    git clone https://github.com/AlvinYapAbidin/flask_CV_API.git
     cd flask_CV_API
 
 ### Download the Model Weights:
@@ -36,7 +37,7 @@ Place the downloaded .pt files in a directory accessible to your application, or
 
 To start the server, run:
 
-python app.py
+    python app.py
 
 This will start the Flask server on http://localhost:5000. You can make POST requests to /segment to process your images using **Postman** (https://www.postman.com/). VSCode has an extension for Postman as well
 
