@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 import os
 from segment_anything import SamPredictor, sam_model_registry
-from fastsam import FastSAM, FastSAMPrompt
+from fastsam import FastSAM, FastSAMPrompt # requires the fastsam folder in order to import
 import pkg_resources
 
 app = Flask(__name__)
@@ -55,14 +55,9 @@ def create_mask_FastSAM(image_path, x, y, filename):
         prompt_process = FastSAMPrompt(IMAGE_PATH, everything_results, device=DEVICE)
 
         ann = prompt_process.point_prompt(points=[[x, y]], pointlabel=[1])
-
-        # Assume ann is a valid mask array
-        if not isinstance(ann, np.ndarray):
-            raise ValueError("Expected ann to be a numpy array")
         
         if ann.ndim == 3 and ann.shape[0] == 1:
-            # If it is 3D and the first dimension is 1, squeeze it to 2D
-            ann = np.squeeze(ann, axis=0)
+            ann = np.squeeze(ann, axis=0)  # converting the array from (1, height, width) to (height, width),
         
         mask = ann
         mask_image = Image.fromarray((mask * 255).astype(np.uint8))
