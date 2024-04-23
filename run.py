@@ -15,12 +15,14 @@ app.config['MASK_FOLDER'] = 'static/masks/'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['MASK_FOLDER'], exist_ok=True)
 
-# Routing
-@app.route('/')
-def index():
-    return "Image processing server"
+### Routing ###
 
-@app.route('/segment', methods=['POST'])
+
+# @app.route('/')
+# def index():
+#     return "Image processing server"
+
+@app.route('/', methods=['POST'])
 def process_image():
     if 'image' not in request.files:
         return jsonify(result=-1, message="No image provided"), 400
