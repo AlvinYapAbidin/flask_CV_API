@@ -108,4 +108,4 @@ def create_mask_SAM(image_path, x, y, filename):
 #         raise Exception(f"Failed to process image:{str(e)}")
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(host='0.0.0.0')
