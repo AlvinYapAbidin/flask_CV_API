@@ -26,7 +26,7 @@ os.makedirs(app.config['MASK_FOLDER'], exist_ok=True)
 def process_image():
     if 'image' not in request.files:
         return jsonify(result=-1, message="No image provided"), 400
-    
+        
     image_file = request.files['image']
     if not allowed_file(image_file.filename):
         return jsonify(result=-1, message="File format not supported"), 400
@@ -48,29 +48,6 @@ def process_image():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
-# def create_mask_FastSAM(image_path, x, y, filename):
-#     try:
-#         model = FastSAM('FastSAM.pt')
-#         IMAGE_PATH = image_path
-#         DEVICE = 'cpu'
-#         everything_results = model(IMAGE_PATH, device=DEVICE, retina_masks=True, imgsz=1024, conf=0.4, iou=0.9,)
-#         prompt_process = FastSAMPrompt(IMAGE_PATH, everything_results, device=DEVICE)
-
-#         ann = prompt_process.point_prompt(points=[[x, y]], pointlabel=[1])
-        
-#         if ann.ndim == 3 and ann.shape[0] == 1:
-#             ann = np.squeeze(ann, axis=0)  # converting the array from (1, height, width) to (height, width),
-        
-#         mask = ann
-#         mask_image = Image.fromarray((mask * 255).astype(np.uint8))
-
-#         mask_path = os.path.join(app.config['MASK_FOLDER'], f"mask_{filename}")
-#         # prompt_process.plot(annotations=ann, output_path=mask_path)
-#         mask_image.save(mask_path)
-
-#         return  mask_path
-#     except Exception as e:
-#         raise Exception(f"Failed to process image:{str(e)}")
 
 def create_mask_SAM(image_path, x, y, filename):
     try:
@@ -105,6 +82,30 @@ def create_mask_SAM(image_path, x, y, filename):
         return mask_path
     except Exception as e:
         raise Exception(f"Failed to process image: {str(e)}")
+    
+# def create_mask_FastSAM(image_path, x, y, filename):
+#     try:
+#         model = FastSAM('FastSAM.pt')
+#         IMAGE_PATH = image_path
+#         DEVICE = 'cpu'
+#         everything_results = model(IMAGE_PATH, device=DEVICE, retina_masks=True, imgsz=1024, conf=0.4, iou=0.9,)
+#         prompt_process = FastSAMPrompt(IMAGE_PATH, everything_results, device=DEVICE)
+
+#         ann = prompt_process.point_prompt(points=[[x, y]], pointlabel=[1])
+        
+#         if ann.ndim == 3 and ann.shape[0] == 1:
+#             ann = np.squeeze(ann, axis=0)  # converting the array from (1, height, width) to (height, width),
+        
+#         mask = ann
+#         mask_image = Image.fromarray((mask * 255).astype(np.uint8))
+
+#         mask_path = os.path.join(app.config['MASK_FOLDER'], f"mask_{filename}")
+#         # prompt_process.plot(annotations=ann, output_path=mask_path)
+#         mask_image.save(mask_path)
+
+#         return  mask_path
+#     except Exception as e:
+#         raise Exception(f"Failed to process image:{str(e)}")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
