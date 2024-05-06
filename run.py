@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 import os
 from segment_anything import SamPredictor, sam_model_registry
-from fastsam import FastSAM, FastSAMPrompt # requires the fastsam folder in order to import
+# from fastsam import FastSAM, FastSAMPrompt # requires the fastsam folder in order to import
 import pkg_resources
 
 app = Flask(__name__)
@@ -39,7 +39,7 @@ def process_image():
     y = int(request.form.get('y', 0))
 
     try:
-        mask_path = create_mask_FastSAM(image_path, x, y, image_file.filename)
+        mask_path = create_mask_SAM(image_path, x, y, image_file.filename)
     except Exception as e:
         return jsonify(result=-1, message=str(e)), 500
 
@@ -83,29 +83,29 @@ def create_mask_SAM(image_path, x, y, filename):
     except Exception as e:
         raise Exception(f"Failed to process image: {str(e)}")
     
-def create_mask_FastSAM(image_path, x, y, filename):
-    try:
-        model = FastSAM('FastSAM.pt')
-        IMAGE_PATH = image_path
-        DEVICE = 'cpu'
-        everything_results = model(IMAGE_PATH, device=DEVICE, retina_masks=True, imgsz=1024, conf=0.4, iou=0.9,)
-        prompt_process = FastSAMPrompt(IMAGE_PATH, everything_results, device=DEVICE)
+# def create_mask_FastSAM(image_path, x, y, filename):
+#     try:
+#         model = FastSAM('FastSAM.pt')
+#         IMAGE_PATH = image_path
+#         DEVICE = 'cpu'
+#         everything_results = model(IMAGE_PATH, device=DEVICE, retina_masks=True, imgsz=1024, conf=0.4, iou=0.9,)
+#         prompt_process = FastSAMPrompt(IMAGE_PATH, everything_results, device=DEVICE)
 
-        ann = prompt_process.point_prompt(points=[[x, y]], pointlabel=[1])
+#         ann = prompt_process.point_prompt(points=[[x, y]], pointlabel=[1])
         
-        if ann.ndim == 3 and ann.shape[0] == 1:
-            ann = np.squeeze(ann, axis=0)  # converting the array from (1, height, width) to (height, width),
+#         if ann.ndim == 3 and ann.shape[0] == 1:
+#             ann = np.squeeze(ann, axis=0)  # converting the array from (1, height, width) to (height, width),
         
-        mask = ann
-        mask_image = Image.fromarray((mask * 255).astype(np.uint8))
+#         mask = ann
+#         mask_image = Image.fromarray((mask * 255).astype(np.uint8))
 
-        mask_path = os.path.join(app.config['MASK_FOLDER'], f"mask_{filename}")
-        # prompt_process.plot(annotations=ann, output_path=mask_path)
-        mask_image.save(mask_path)
+#         mask_path = os.path.join(app.config['MASK_FOLDER'], f"mask_{filename}")
+#         # prompt_process.plot(annotations=ann, output_path=mask_path)
+#         mask_image.save(mask_path)
 
-        return  mask_path
-    except Exception as e:
-        raise Exception(f"Failed to process image:{str(e)}")
+#         return  mask_path
+#     except Exception as e:
+#         raise Exception(f"Failed to process image:{str(e)}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
